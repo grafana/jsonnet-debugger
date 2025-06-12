@@ -334,13 +334,17 @@ func (ds *JsonnetDebugSession) onInitializeRequest(request *dap.InitializeReques
 	response.Body.SupportsCancelRequest = false
 	response.Body.SupportsBreakpointLocationsRequest = false
 
+	ds.send(response)
+
+	// Per https://github.com/microsoft/vscode/issues/4902#issuecomment-368583522,
+	// we *must* send the initialize response before the initialized event.
+
 	// This is a fake set up, so we can start "accepting" configuration
 	// requests for setting breakpoints, etc from the client at any time.
 	// Notify the client with an 'initialized' event. The client will end
 	// the configuration sequence with 'configurationDone' request.
 	e := &dap.InitializedEvent{Event: *newEvent("initialized")}
 	ds.send(e)
-	ds.send(response)
 }
 
 type launchRequest struct {
