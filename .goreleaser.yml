@@ -1,3 +1,4 @@
+version: 2
 builds:
   - env:
       - CGO_ENABLED=0
@@ -16,6 +17,6 @@ builds:
       - '6'
       - '7'
 archives:
-  - format: binary
+  - formats: binary
 release:
   draft: true
