@@ -46,6 +46,7 @@ func dapStdin() error {
 		stopDebug: make(chan struct{}),
 		debugger:  jsonnet.MakeDebugger(),
 	}
+	debugSession.configurationDoneEvent.Add(1)
 
 	go debugSession.sendFromQueue()
 	go debugSession.dispatchEvents()
@@ -77,6 +78,7 @@ func handleConnection(conn net.Conn) {
 		stopDebug: make(chan struct{}),
 		debugger:  jsonnet.MakeDebugger(),
 	}
+	debugSession.configurationDoneEvent.Add(1)
 
 	go debugSession.sendFromQueue()
 	go debugSession.dispatchEvents()
@@ -277,6 +279,9 @@ type JsonnetDebugSession struct {
 	sendQueue chan dap.Message
 	sendWg    sync.WaitGroup
 
+	// Used to trigger when the configurationDone request is received.
+	configurationDoneEvent sync.WaitGroup
+
 	// stopDebug is used to notify long-running handlers to stop processing.
 	stopDebug chan struct{}
 
@@ -301,7 +306,7 @@ func (ds *JsonnetDebugSession) onInitializeRequest(request *dap.InitializeReques
 
 	response := &dap.InitializeResponse{}
 	response.Response = *newResponse(request.Seq, request.Command)
-	response.Body.SupportsConfigurationDoneRequest = false
+	response.Body.SupportsConfigurationDoneRequest = true
 	response.Body.SupportsFunctionBreakpoints = false
 	response.Body.SupportsConditionalBreakpoints = false
 	response.Body.SupportsHitConditionalBreakpoints = false
@@ -334,13 +339,17 @@ func (ds *JsonnetDebugSession) onInitializeRequest(request *dap.InitializeReques
 	response.Body.SupportsCancelRequest = false
 	response.Body.SupportsBreakpointLocationsRequest = false
 
+	ds.send(response)
+
+	// Per https://github.com/microsoft/vscode/issues/4902#issuecomment-368583522,
+	// we *must* send the initialize response before the initialized event.
+
 	// This is a fake set up, so we can start "accepting" configuration
 	// requests for setting breakpoints, etc from the client at any time.
 	// Notify the client with an 'initialized' event. The client will end
 	// the configuration sequence with 'configurationDone' request.
 	e := &dap.InitializedEvent{Event: *newEvent("initialized")}
 	ds.send(e)
-	ds.send(response)
 }
 
 type launchRequest struct {
@@ -365,10 +374,16 @@ func (ds *JsonnetDebugSession) onLaunchRequest(request *dap.LaunchRequest) {
 	slog.Debug("Starting debugging", "breakpoints", ds.debugger.ActiveBreakpoints(), "file", lr.Program)
 	response := &dap.LaunchResponse{}
 	response.Response = *newResponse(request.Seq, request.Command)
+	// We must wait for the configurationDone event before sending the response:
+	// https://github.com/microsoft/vscode/issues/4902#issuecomment-368583522
+	ds.configurationDoneEvent.Wait()
 	ds.send(response)
 }
 
 func (ds *JsonnetDebugSession) onAttachRequest(request *dap.AttachRequest) {
+	// We must wait for the configurationDone event before sending the response:
+	// https://github.com/microsoft/vscode/issues/4902#issuecomment-368583522
+	ds.configurationDoneEvent.Wait()
 	ds.send(newErrorResponse(request.Seq, request.Command, "AttachRequest is not yet supported"))
 }
 
@@ -414,7 +429,11 @@ func (ds *JsonnetDebugSession) onSetExceptionBreakpointsRequest(request *dap.Set
 }
 
 func (ds *JsonnetDebugSession) onConfigurationDoneRequest(request *dap.ConfigurationDoneRequest) {
-	ds.send(newErrorResponse(request.Seq, request.Command, "ConfigurationDoneRequest is not yet supported"))
+	response := &dap.ConfigurationDoneResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	ds.send(response)
+	ds.configurationDoneEvent.Done()
+
 }
 
 func (ds *JsonnetDebugSession) onContinueRequest(request *dap.ContinueRequest) {
