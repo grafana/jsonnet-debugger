@@ -6,7 +6,7 @@ toolchain go1.25.5
 
 require (
 	github.com/google/go-dap v0.11.0
-	github.com/google/go-jsonnet v0.20.1-0.20240611134004-2b4d7535f540
+	github.com/google/go-jsonnet v0.22.0
 	github.com/gookit/color v1.5.4
 	github.com/lmittmann/tint v1.0.4
 	github.com/peterh/liner v1.2.2
