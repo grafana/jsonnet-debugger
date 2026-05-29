@@ -1,8 +1,6 @@
 module github.com/grafana/jsonnet-debugger
 
-go 1.25.0
-
-toolchain go1.25.5
+go 1.25.6
 
 require (
 	github.com/google/go-dap v0.11.0
