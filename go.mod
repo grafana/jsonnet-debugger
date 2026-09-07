@@ -11,7 +11,8 @@ require (
 )
 
 require (
-	github.com/mattn/go-runewidth v0.0.3 // indirect
+	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/mattn/go-runewidth v0.0.29 // indirect
 	github.com/xo/terminfo v1.0.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/crypto v0.56.0 // indirect
