@@ -7,14 +7,15 @@ require (
 	github.com/google/go-jsonnet v0.20.1-0.20240611134004-2b4d7535f540
 	github.com/gookit/color v1.6.1
 	github.com/lmittmann/tint v1.2.0
-	github.com/peterh/liner v1.2.2
+	github.com/peterh/liner v1.2.3
 )
 
 require (
-	github.com/mattn/go-runewidth v0.0.3 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/xo/terminfo v1.0.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/crypto v0.56.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
