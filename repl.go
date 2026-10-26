@@ -246,7 +246,7 @@ func (r *ReplDebugger) repl(current ast.Node, lastVal *string, jerr error) {
 		return
 	case "":
 	default:
-		fmt.Printf("Unknonw command: %s\n", input)
+		fmt.Printf("Unknown command: %s\n", input)
 	}
 	r.repl(current, nil, jerr)
 }
