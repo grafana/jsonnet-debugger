@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/google/go-dap v0.12.0
 	github.com/google/go-jsonnet v0.20.1-0.20240611134004-2b4d7535f540
-	github.com/gookit/color v1.6.1
+	github.com/gookit/color v1.6.3
 	github.com/lmittmann/tint v1.2.0
 	github.com/peterh/liner v1.2.2
 )
